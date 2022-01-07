@@ -22,7 +22,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.           *
  ****************************************************************************/
 
-#include "mp_defs.inc"
+#include "../mp_defs.inc"
 
 #define SEEK_SET 0
 

@@ -26,17 +26,17 @@
  *
  ******************************************************************************/
 
-#include "mp_defs.inc"
-#include "mp_mas.inc"
-#include "mp_mas_structs.inc"
-#include "mp_macros.inc"
+#include "../mp_defs.inc"
+#include "../mp_mas.inc"
+#include "../mp_mas_structs.inc"
+#include "../mp_macros.inc"
 
 #ifdef SYS_GBA
 #include "mp_mixer_gba.inc"
 #endif
 
 #ifdef SYS_NDS
-#include "mp_mixer_ds.inc"
+#include "../mp_mixer_ds.inc"
 #endif
 
 /******************************************************************************

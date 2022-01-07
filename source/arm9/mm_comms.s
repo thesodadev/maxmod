@@ -22,8 +22,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.           *
  ****************************************************************************/
 
-#include "mp_macros.inc"
-#include "mp_defs.inc"
+#include "../mp_macros.inc"
+#include "../mp_defs.inc"
 
 /*****************************************************************************************************************************
 

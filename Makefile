@@ -1,56 +1,75 @@
-export MAXMOD_MAJOR	:= 1
-export MAXMOD_MINOR	:= 0
-export MAXMOD_PATCH	:= 12
+# There potential problem with common source files 
+# they need to be build for each platform independetly
+# as a workaround use `make clean` before each build
 
-VERSTRING	:=	$(MAXMOD_MAJOR).$(MAXMOD_MINOR).$(MAXMOD_PATCH)
+# Lib version 1.0.12 
 
-.PHONY:	gba ds7 ds9 ds9e
+TARGET ?= ARM9
 
-all: install
+# Toolchain
+LD = arm-none-eabi-gcc
+AS = arm-none-eabi-as
+AR = arm-none-eabi-gcc-ar
+
+ARCHFLAGS = -mthumb \
+  			-mthumb-interwork \
+			-DSYS_NDS
+ARFLAGS = -rcs
+
+COMMON_SRC_DIR = source
+COMMON_SRC_FILES = $(wildcard $(COMMON_SRC_DIR)/*.s)
+
+ifeq ($(TARGET),ARM9)
+	BIN_NAME = libmm9.a
+
+	GFX_DIR = res/gfx
+	FONTS_DIR = res/fonts
+	ARM9_SRC_DIR = source/arm9
+
+	SRC_FILES = $(wildcard $(ARM9_SRC_DIR)/*.s)
+
+	ARCHFLAGS += -march=armv5te \
+				 -mtune=arm946e-s \
+				 -DSYS_NDS9
+else
+	BIN_NAME = libmm7.a
+
+	ARM7_SRC_DIR = source/arm7
+	SRC_FILES = $(wildcard $(ARM7_SRC_DIR)/*.s)
+
+	ARCHFLAGS += -march=armv4t \
+				 -mcpu=arm7tdmi \
+				 -mtune=arm7tdmi \
+				 -DSYS_NDS7
+endif
+
+OBJ_FILES += $(patsubst %.s,%.o, $(patsubst %.c,%.o, $(COMMON_SRC_FILES) $(SRC_FILES)))
+
+ASFLAGS = -x assembler-with-cpp \
+		  $(ARCHFLAGS)
+
+# Build rules
+$(BIN_NAME): $(OBJ_FILES)
+	$(AR) $(ARFLAGS) $@ $^
+
+%.o: %.s
+	$(CC) $(ASFLAGS) -c $< -o $@
+
+# General rules
+.PHONY: all clean rebuild install
+
+all: $(BIN_NAME)
 
 clean:
-	rm -fr lib build_gba build_ds7 build_ds9 build_ds9e
+	rm -rf $(OBJ_FILES) $(BIN_NAME)
 
-install: install-gba install-nds install-ndse
+rebuild: clean all
 
-install-gba: gba
-	mkdir -p $(DESTDIR)$(DEVKITPRO)/libgba/include
-	mkdir -p $(DESTDIR)$(DEVKITPRO)/libgba/lib
-	cp lib/libmm.a $(DESTDIR)$(DEVKITPRO)/libgba/lib
-	cp include/maxmod.h include/mm_types.h $(DESTDIR)$(DEVKITPRO)/libgba/include
-	cp maxmod_license.txt $(DESTDIR)$(DEVKITPRO)/libgba
+PREFIX ?= /usr/lib
 
-install-nds: ds7 ds9
-	mkdir -p $(DESTDIR)$(DEVKITPRO)/libnds/include
-	mkdir -p $(DESTDIR)$(DEVKITPRO)/libnds/lib
-	cp lib/libmm7.a lib/libmm9.a $(DESTDIR)$(DEVKITPRO)/libnds/lib
-	cp include/maxmod7.h include/maxmod9.h include/mm_types.h $(DESTDIR)$(DEVKITPRO)/libnds/include
-	cp maxmod_license.txt $(DESTDIR)$(DEVKITPRO)/libnds
-
-install-ndse: ds9e
-
-dist: dist-gba dist-nds dist-nds9e dist-src
-
-dist-gba:	gba
-	@tar --exclude=.svn -cjvf  maxmod-gba-$(VERSTRING).tar.bz2 include/maxmod.h include/mm_types.h lib/libmm.a maxmod_license.txt
-
-dist-nds:	ds7 ds9
-	@tar --exclude=.svn -cjvf maxmod-nds-$(VERSTRING).tar.bz2 include/maxmod7.h include/maxmod9.h include/mm_types.h lib/libmm7.a lib/libmm9.a maxmod_license.txt
-
-dist-nds9e: ds9e
-
-dist-src:
-	@tar --exclude=.svn -cvjf maxmod-src-$(VERSTRING).tar.bz2 \
-	asm_include include source* Makefile maxmod.mak maxmod_license.txt
-
-gba:
-	$(MAKE) -f maxmod.mak SYSTEM=GBA
-
-ds9e:
-	$(MAKE) -f maxmod.mak SYSTEM=DS9E
-
-ds7:
-	$(MAKE) -f maxmod.mak SYSTEM=DS7
-
-ds9:
-	$(MAKE) -f maxmod.mak SYSTEM=DS9
+install:
+	install -d $(DESTDIR)$(PREFIX)/arm-none-eabi/include/maxmod
+	cp -fr include/* $(DESTDIR)$(PREFIX)/arm-none-eabi/include/maxmod
+	chmod -R 644 $(DESTDIR)$(PREFIX)/arm-none-eabi/include/maxmod
+	install -d $(DESTDIR)$(PREFIX)/arm-none-eabi/lib
+	install -m 644 $(BIN_NAME) $(DESTDIR)$(PREFIX)/arm-none-eabi/lib

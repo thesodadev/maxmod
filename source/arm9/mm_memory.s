@@ -30,8 +30,8 @@
 
 @----------------------------------------------
 	
-#include "mp_defs.inc"
-#include "mp_format_mas.inc"
+#include "../mp_defs.inc"
+#include "../mp_format_mas.inc"
 
 @----------------------------------------------
 

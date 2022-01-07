@@ -22,10 +22,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.           *
  ****************************************************************************/
 
-#include "mp_format_mas.inc"
-#include "swi_nds.inc"
-#include "mp_macros.inc"
-#include "mp_defs.inc"
+#include "../mp_format_mas.inc"
+#include "../swi_nds.inc"
+#include "../mp_macros.inc"
+#include "../mp_defs.inc"
 
 //#define LITE
 

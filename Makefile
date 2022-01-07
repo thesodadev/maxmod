@@ -7,6 +7,7 @@
 TARGET ?= ARM9
 
 # Toolchain
+CC = arm-none-eabi-gcc
 LD = arm-none-eabi-gcc
 AS = arm-none-eabi-as
 AR = arm-none-eabi-gcc-ar
